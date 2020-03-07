@@ -58,21 +58,29 @@ export class OwnerEditComponent implements OnInit, OnDestroy {
 
   repeatedDni(dni: string): boolean {
     for (const element of this.owners) {
-      if (dni === element.dni) {
+      if (dni === element['dni']) {
         return true;
       }
     }
     return false;
   }
   save(form: NgForm) {
-    if (! this.repeatedDni(form['dni'])) {
+    if (this.router.url.includes('edit')) {
       this.ownerService.save(form).subscribe(result => {
         this.gotoList();
       }, error => console.error(error));
       this.getOwners();
     } else {
-      window.alert('There is already an owner with that dni');
+      if (! this.repeatedDni(form['dni'])) {
+        this.ownerService.save(form).subscribe(result => {
+          this.gotoList();
+        }, error => console.error(error));
+        this.getOwners();
+      } else {
+        window.alert('There is already an owner with that dni');
+      }
     }
+
   }
 
   remove(dni) {
