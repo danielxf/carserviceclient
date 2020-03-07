@@ -11,8 +11,9 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./owner-edit.component.css']
 })
 export class OwnerEditComponent implements OnInit, OnDestroy {
-
+  owners: Array<object> = [];
   owner: any = {};
+  message: any;
 
   sub: Subscription;
   constructor(private route: ActivatedRoute,
@@ -21,6 +22,7 @@ export class OwnerEditComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.getOwner();
+    this.getOwners();
   }
 
   ngOnDestroy() {
@@ -29,13 +31,13 @@ export class OwnerEditComponent implements OnInit, OnDestroy {
 
   getOwner() {
     this.sub = this.route.params.subscribe(params => {
-      const dni = params['dni'];
-      if(dni){
-        this.ownerService.get(dni).subscribe((owner:any) => {
+      const dni = params.dni;
+      if (dni) {
+        this.ownerService.get(dni).subscribe((owner: any) => {
           if (owner) {
             this.owner = owner[0];
             this.owner.href = owner[0]._links.self.href;
-          }else {
+          } else {
             console.log(`Owner with this ${dni} does not exists`);
             this.gotoList();
           }
@@ -44,15 +46,33 @@ export class OwnerEditComponent implements OnInit, OnDestroy {
     });
   }
 
+  getOwners() {
+    this.ownerService.getAll().subscribe(data => {
+      this.owners = data;
+    });
+  }
+
   gotoList() {
     this.router.navigate(['/owner-list']);
   }
 
-
+  repeatedDni(dni: string): boolean {
+    for (const element of this.owners) {
+      if (dni === element.dni) {
+        return true;
+      }
+    }
+    return false;
+  }
   save(form: NgForm) {
-    this.ownerService.save(form).subscribe(result => {
-      this.gotoList();
-    }, error => console.error(error));
+    if (! this.repeatedDni(form['dni'])) {
+      this.ownerService.save(form).subscribe(result => {
+        this.gotoList();
+      }, error => console.error(error));
+      this.getOwners();
+    } else {
+      window.alert('There is already an owner with that dni');
+    }
   }
 
   remove(dni) {

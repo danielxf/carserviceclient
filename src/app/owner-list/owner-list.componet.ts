@@ -31,29 +31,6 @@ export class OwnerListComponent implements OnInit {
     });
   }
 
-  getOwner(dni: string): object {
-    let owner: object = {};
-    for (owner of this.owners) {
-      // @ts-ignore
-      if (owner.dni === dni) {
-        return owner;
-      }
-    }
-    return owner;
-  }
-
-  ownerNotInSelectedOwners(owner: object): boolean {
-    let result  = true;
-    for (const element of this.selectedOwners) {
-      // @ts-ignore
-      if (element.dni === owner.dni) {
-        result = false;
-        break;
-      }
-    }
-    return result;
-  }
-
   removeOwnersList() {
     this.ownerService.removeList(this.selectedOwners);
     this.selectedOwners = [];
@@ -65,7 +42,7 @@ export class OwnerListComponent implements OnInit {
       this.owners =  this.owners.filter((own: object) => this.owners.includes(own));
       this.removeOwnersList();
     } else {
-      this.message = 'There are no owners left';
+      this.message = 'There are no owners left or there are not owners selected';
     }
 
   }
